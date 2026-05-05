@@ -1,0 +1,151 @@
+@import "tailwindcss";
+
+:root {
+  --background: #f8fafc;
+  --foreground: #0f172a;
+  --brand-primary: #4b49ac;
+  --brand-secondary: #98bdff;
+  --brand-support-1: #7da0fa;
+  --brand-support-2: #7978e9;
+  --brand-alert: #f3797e;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+.dark {
+  --background: #020617;
+  --foreground: #e2e8f0;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+}
+
+.dashboard-surface {
+  background-image:
+    radial-gradient(circle at 10% 10%, rgb(99 102 241 / 0.1), transparent 32%),
+    radial-gradient(circle at 90% 20%, rgb(6 182 212 / 0.08), transparent 38%),
+    radial-gradient(circle at 50% 100%, rgb(236 72 153 / 0.08), transparent 30%);
+}
+
+.glass-card {
+  background: rgb(255 255 255 / 0.94);
+  border: 1px solid rgb(148 163 184 / 0.4);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 8px 24px rgb(15 23 42 / 0.06);
+}
+
+.dark .glass-card {
+  background: rgb(2 6 23 / 0.96);
+  border-color: rgb(100 116 139 / 0.7);
+  box-shadow: 0 10px 28px rgb(2 6 23 / 0.55);
+  color: rgb(226 232 240);
+}
+
+.dark .dashboard-surface {
+  background-image:
+    radial-gradient(circle at 10% 10%, rgb(99 102 241 / 0.12), transparent 32%),
+    radial-gradient(circle at 90% 20%, rgb(6 182 212 / 0.1), transparent 38%),
+    radial-gradient(circle at 50% 100%, rgb(236 72 153 / 0.08), transparent 30%);
+}
+
+/* Improve readability of muted utility text in dark cards */
+.dark .glass-card .text-slate-500,
+.dark .glass-card .text-slate-600 {
+  color: rgb(203 213 225) !important;
+}
+
+.dark .glass-card .text-slate-400 {
+  color: rgb(203 213 225) !important;
+}
+
+.dark .glass-card .text-slate-700 {
+  color: rgb(226 232 240) !important;
+}
+
+.dark .glass-card .text-slate-800,
+.dark .glass-card .text-slate-900 {
+  color: rgb(248 250 252) !important;
+}
+
+/* Stronger default contrast for dark mode content */
+.dark .glass-card h1,
+.dark .glass-card h2,
+.dark .glass-card h3,
+.dark .glass-card h4,
+.dark .glass-card strong,
+.dark .glass-card th {
+  color: rgb(248 250 252) !important;
+}
+
+.dark .glass-card p,
+.dark .glass-card td,
+.dark .glass-card dt,
+.dark .glass-card dd,
+.dark .glass-card li {
+  color: rgb(226 232 240);
+  opacity: 1;
+}
+
+/* Hard fallback: keep all text legible in dark cards */
+.dark .glass-card span,
+.dark .glass-card label,
+.dark .glass-card small {
+  color: rgb(226 232 240);
+  opacity: 1;
+}
+
+.dark .glass-card input,
+.dark .glass-card select {
+  background: rgb(15 23 42 / 0.9) !important;
+  border-color: rgb(100 116 139 / 0.6) !important;
+  color: rgb(241 245 249) !important;
+}
+
+.dark .glass-card input::placeholder {
+  color: rgb(148 163 184) !important;
+}
+
+/* Verification history rows: must stay dark + high contrast (nested inside .glass-card) */
+.dark .verification-history-card {
+  background: linear-gradient(145deg, rgb(30 27 75 / 0.95) 0%, rgb(15 23 42) 100%) !important;
+  border: 1px solid rgb(152 189 255 / 0.35) !important;
+  box-shadow:
+    0 4px 6px rgb(0 0 0 / 0.35),
+    inset 0 1px 0 rgb(255 255 255 / 0.06) !important;
+}
+
+.dark .verification-history-card:hover {
+  background: linear-gradient(145deg, rgb(49 46 129 / 0.55) 0%, rgb(30 41 59) 100%) !important;
+  border-color: rgb(125 160 250 / 0.45) !important;
+}
+
+.dark .verification-history-card .vh-title {
+  color: rgb(255 255 255) !important;
+}
+
+.dark .verification-history-card .vh-meta {
+  color: rgb(156 163 175) !important;
+}
+
+.dark .verification-history-card .vh-label {
+  color: rgb(209 213 219) !important;
+}
+
+.dark .verification-history-card .vh-value {
+  color: rgb(255 255 255) !important;
+}
+
+.dark .verification-history-card .vh-track {
+  background-color: rgb(55 65 81) !important;
+}
+
+.dark .verification-history-card .vh-progress {
+  background: linear-gradient(90deg, rgb(34 211 238), rgb(125 160 250)) !important;
+}
