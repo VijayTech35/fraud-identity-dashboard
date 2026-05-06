@@ -1,12 +1,14 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 import { downloadCsv, downloadPdf } from "@/lib/export";
-import { CheckCircle2, ScanFace, Sparkles } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { CheckCircle2, Download, FileText, ScanFace, Smartphone, Sparkles, UserCheck } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 type VerificationTask = {
   id: string;
@@ -20,8 +22,8 @@ type VerificationTask = {
 };
 
 const metrics = [
-  { label: "Verification Success", value: "91.6%", delta: "+1.9% week-over-week", positive: true },
-  { label: "Avg Scan Time", value: "42s", delta: "-8s optimization", positive: true },
+  { label: "Verification Success", value: "91.6%", delta: "+1.9%", positive: true },
+  { label: "Avg Scan Time", value: "42s", delta: "-8s", positive: true },
   { label: "Pending Queue", value: "83", delta: "12 high-priority" },
   { label: "Face Match Failures", value: "3.1%", delta: "-0.4%", positive: true },
 ];
@@ -31,6 +33,7 @@ const seed: VerificationTask[] = [
   { id: "VER-917", user: "Imran Khan", phoneVerified: true, documentStatus: "Pending", faceMatch: 72, progress: 68, status: "Pending", updatedAt: "3 mins ago" },
   { id: "VER-910", user: "Ritika Shah", phoneVerified: true, documentStatus: "Failed", faceMatch: 49, progress: 100, status: "Failed", updatedAt: "8 mins ago" },
   { id: "VER-901", user: "Nikhil Das", phoneVerified: true, documentStatus: "Passed", faceMatch: 93, progress: 100, status: "Verified", updatedAt: "15 mins ago" },
+  { id: "VER-898", user: "Li Wei", phoneVerified: false, documentStatus: "Pending", faceMatch: 0, progress: 22, status: "Pending", updatedAt: "22 mins ago" },
 ];
 
 const profile = {
@@ -41,6 +44,14 @@ const profile = {
   confidence: 94,
 };
 
+const statusDistribution = [
+  { name: "Verified", value: 2 },
+  { name: "Pending", value: 2 },
+  { name: "Failed", value: 1 },
+];
+
+const statusColors = ["#10b981", "#f59e0b", "#ef4444"];
+
 const statusVariant = (status: VerificationTask["status"]): "success" | "warning" | "destructive" => {
   switch (status) {
     case "Verified":
@@ -50,6 +61,27 @@ const statusVariant = (status: VerificationTask["status"]): "success" | "warning
     case "Failed":
       return "destructive";
   }
+};
+
+const docStatusVariant = (status: VerificationTask["documentStatus"]): "success" | "warning" | "destructive" => {
+  switch (status) {
+    case "Passed":
+      return "success";
+    case "Pending":
+      return "warning";
+    case "Failed":
+      return "destructive";
+  }
+};
+
+const ChartTooltip = ({ active, payload }: { active?: boolean; payload?: { name: string; value: number; payload: { name: string } }[] }) => {
+  if (!active || !payload) return null;
+  return (
+    <div className="rounded-md border border-border bg-background p-2 shadow-md">
+      <p className="text-xs font-medium text-foreground">{payload[0].name}</p>
+      <p className="text-xs text-muted-foreground">Count: <span className="font-medium text-foreground">{payload[0].value}</span></p>
+    </div>
+  );
 };
 
 export default function VerificationPage() {
@@ -71,123 +103,136 @@ export default function VerificationPage() {
   const success = useMemo(() => Math.round((tasks.filter((t) => t.status === "Verified").length / tasks.length) * 100), [tasks]);
 
   return (
-    <section className="space-y-5 text-foreground">
-      {/* Hero Section */}
-      <div className="glass-card relative overflow-hidden rounded-2xl p-4 sm:p-5">
-        <div className="absolute -left-10 top-0 h-28 w-28 rounded-full bg-fuchsia-400/20 blur-2xl" />
-        <div className="absolute right-0 top-1/2 h-28 w-28 rounded-full bg-violet-500/20 blur-2xl" />
-        <div className="mb-1.5 inline-flex items-center gap-2 rounded-full bg-[#98BDFF]/30 px-2.5 py-0.5 text-xs font-medium text-[#4B49AC] dark:bg-[#7DA0FA]/20 dark:text-[#98BDFF]">
-          <ScanFace size={14} /> Biometric Workflow
-        </div>
-        <div className="relative flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+    <section className="space-y-4 text-foreground">
+      {/* Compact Header */}
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-2">
+          <ScanFace size={20} className="text-primary" />
           <div>
-            <h2 className="text-xl font-bold tracking-tight text-foreground sm:text-2xl lg:text-3xl">User Identity Verification Dashboard</h2>
-            <p className="mt-0.5 text-sm text-muted-foreground">Track phone checks, document OCR, and face matching confidence in real time.</p>
+            <h2 className="text-base font-semibold tracking-tight">Identity Verification</h2>
+            <p className="text-xs text-muted-foreground">Biometric scanning & document verification</p>
           </div>
-          <span className="inline-flex items-center gap-1 rounded-full bg-[#7DA0FA]/25 px-2.5 py-0.5 text-xs font-medium text-[#4B49AC] dark:bg-[#7DA0FA]/20 dark:text-[#98BDFF]">
-            <CheckCircle2 size={14} /> SLA healthy
-          </span>
+        </div>
+        <div className="flex items-center gap-2">
+          <Badge variant="success" className="text-xs">
+            <CheckCircle2 size={12} className="mr-1" />
+            SLA healthy
+          </Badge>
+          <span className="text-xs text-muted-foreground">{new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</span>
         </div>
       </div>
 
-      {/* Metrics */}
+      {/* Metrics Row */}
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         {metrics.map((metric) => (
-          <Card key={metric.label} className="glass-card border-border shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
-            <CardContent className="p-3.5">
-              <p className="text-xs text-muted-foreground">{metric.label}</p>
+          <Card key={metric.label} className="border-border shadow-sm">
+            <CardContent className="p-3">
+              <div className="flex items-center justify-between">
+                <p className="text-xs text-muted-foreground">{metric.label}</p>
+              </div>
               <p className="mt-1 text-xl font-semibold text-foreground">{metric.value}</p>
-              <p className={`mt-1 text-xs ${metric.positive ? "text-emerald-600 dark:text-emerald-400" : "text-muted-foreground"}`}>{metric.delta}</p>
+              <p className={`mt-0.5 text-[11px] ${metric.positive ? "text-emerald-600 dark:text-emerald-400" : "text-muted-foreground"}`}>{metric.delta}</p>
             </CardContent>
           </Card>
         ))}
       </div>
 
-      {/* Main Content */}
-      <div className="grid gap-4 xl:grid-cols-[2fr_1fr]">
-        {/* Verification History */}
-        <Card className="glass-card border-border shadow-sm">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 border-b border-border p-3.5">
-            <CardTitle className="text-foreground text-sm">Verification History</CardTitle>
-            <div className="flex gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                className="border-[#7978E9]/50 bg-[#7978E9]/15 text-[#4B49AC] hover:bg-[#7978E9]/25 dark:text-[#98BDFF] h-7 text-xs"
-                onClick={() => downloadCsv(tasks, "verification-history.csv")}
-              >
-                Export CSV
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                className="border-[#98BDFF]/60 bg-[#98BDFF]/20 text-[#4B49AC] hover:bg-[#98BDFF]/30 dark:text-[#98BDFF] h-7 text-xs"
-                onClick={() =>
-                  downloadPdf(
-                    "Verification Logs",
-                    ["ID", "User", "Doc", "Face", "Progress", "Status"],
-                    tasks.map((r) => [r.id, r.user, r.documentStatus, `${r.faceMatch}%`, `${r.progress}%`, r.status]),
-                    "verification-history.pdf",
-                  )
-                }
-              >
-                Export PDF
-              </Button>
-            </div>
+      {/* Scan Panels + Profile Row */}
+      <div className="grid gap-3 xl:grid-cols-3">
+        {/* Phone + Doc Verification */}
+        <Card className="border-border shadow-sm">
+          <CardHeader className="pb-2 pt-3 px-3">
+            <CardTitle className="text-xs font-semibold text-foreground flex items-center gap-1.5">
+              <Smartphone size={14} /> Identity Scanning
+            </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-2.5 p-4">
-            {tasks.map((task) => (
-              <Card
-                key={task.id}
-                className="border-border bg-card/95 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md cursor-pointer"
-              >
-                <CardContent className="p-3">
-                  <div className="flex flex-wrap items-center justify-between gap-2">
-                    <div>
-                      <p className="text-sm font-semibold text-foreground">{task.user}</p>
-                      <p className="text-xs text-muted-foreground">{task.id} &bull; {task.updatedAt}</p>
-                    </div>
-                    <Badge variant={statusVariant(task.status)}>{task.status}</Badge>
-                  </div>
-                  <div className="mt-2.5 grid gap-1.5 text-xs sm:grid-cols-3">
-                    <p className="text-muted-foreground">
-                      Phone: <strong className="font-semibold text-foreground">{task.phoneVerified ? "Verified" : "Pending"}</strong>
-                    </p>
-                    <p className="text-muted-foreground">
-                      Document: <strong className="font-semibold text-foreground">{task.documentStatus}</strong>
-                    </p>
-                    <p className="text-muted-foreground">
-                      Face Match: <strong className="font-semibold text-foreground">{task.faceMatch}%</strong>
-                    </p>
-                  </div>
-                  <div className="mt-2.5">
-                    <Progress value={task.progress} className="h-2" />
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+          <CardContent className="px-3 pb-3">
+            <div className="space-y-3">
+              <div>
+                <div className="flex items-center justify-between text-xs mb-1">
+                  <span className="text-muted-foreground">Phone Verification</span>
+                  <span className="font-medium text-emerald-600 dark:text-emerald-400">Active</span>
+                </div>
+                <Progress value={87} className="h-1.5" />
+                <p className="mt-0.5 text-[11px] text-muted-foreground">87% completion rate</p>
+              </div>
+              <div>
+                <div className="flex items-center justify-between text-xs mb-1">
+                  <span className="text-muted-foreground">Document Scan</span>
+                  <span className="font-medium text-amber-600 dark:text-amber-400">Processing</span>
+                </div>
+                <Progress value={62} className="h-1.5" />
+                <p className="mt-0.5 text-[11px] text-muted-foreground">62% OCR match rate</p>
+              </div>
+              <div className="rounded-md border border-border bg-muted/30 p-2">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-muted-foreground">Upload Document</span>
+                  <Button variant="ghost" size="sm" className="h-6 px-2 text-xs">
+                    <Download size={12} className="mr-1" /> Upload
+                  </Button>
+                </div>
+              </div>
+            </div>
           </CardContent>
         </Card>
 
-        {/* Sidebar */}
-        <div className="space-y-3.5">
-          <Card className="glass-card border-border shadow-sm">
-            <CardContent className="p-4">
-              <CardTitle className="text-foreground text-sm">Real-time Success Rate</CardTitle>
-              <p className="mt-2 inline-flex items-center gap-2 text-3xl font-bold text-foreground">
-                <Sparkles size={24} className="text-[#7978E9]" />
-                {success}%
-              </p>
-              <CardDescription className="mt-1.5">Updated every 3.5s from simulated scan pipeline.</CardDescription>
+        {/* Scan Results */}
+        <Card className="border-border shadow-sm">
+          <CardHeader className="pb-2 pt-3 px-3">
+            <CardTitle className="text-xs font-semibold text-foreground flex items-center gap-1.5">
+              <UserCheck size={14} /> Scan Results
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="px-3 pb-3">
+            <div className="space-y-2.5">
+              <div className="flex items-center justify-between rounded-md bg-muted/30 px-2.5 py-2">
+                <div>
+                  <p className="text-xs text-muted-foreground">Phone Scan</p>
+                  <p className="text-xs font-medium text-foreground">Verified</p>
+                </div>
+                <Badge variant="success" className="text-[10px] h-5">Passed</Badge>
+              </div>
+              <div className="flex items-center justify-between rounded-md bg-muted/30 px-2.5 py-2">
+                <div>
+                  <p className="text-xs text-muted-foreground">ID Document</p>
+                  <p className="text-xs font-medium text-foreground">IN-AX4-19F-72</p>
+                </div>
+                <Badge variant="warning" className="text-[10px] h-5">Pending</Badge>
+              </div>
+              <div className="flex items-center justify-between rounded-md bg-muted/30 px-2.5 py-2">
+                <div>
+                  <p className="text-xs text-muted-foreground">Face Match</p>
+                  <p className="text-xs font-medium text-foreground">72% confidence</p>
+                </div>
+                <Badge variant="warning" className="text-[10px] h-5">Review</Badge>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Profile + Success Rate */}
+        <div className="space-y-3">
+          <Card className="border-border shadow-sm">
+            <CardContent className="p-3">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs text-muted-foreground">Real-time Success Rate</p>
+                  <p className="mt-0.5 text-2xl font-bold text-foreground">{success}%</p>
+                </div>
+                <div className="h-12 w-12 flex items-center justify-center rounded-full bg-primary/10">
+                  <Sparkles size={20} className="text-primary" />
+                </div>
+              </div>
+              <p className="mt-1 text-[11px] text-muted-foreground">Updated every 3.5s</p>
             </CardContent>
           </Card>
 
-          <Card className="glass-card border-border shadow-sm">
-            <CardHeader className="pb-1.5 pt-3 px-4">
-              <CardTitle className="text-foreground text-sm">Extracted Profile</CardTitle>
+          <Card className="border-border shadow-sm">
+            <CardHeader className="pb-1.5 pt-2.5 px-3">
+              <CardTitle className="text-xs font-semibold text-foreground">Extracted Profile</CardTitle>
             </CardHeader>
-            <CardContent className="px-4 pb-3">
-              <dl className="space-y-1.5 text-sm">
+            <CardContent className="px-3 pb-3">
+              <dl className="space-y-1 text-xs">
                 <div className="flex justify-between">
                   <dt className="text-muted-foreground">Name</dt>
                   <dd className="font-medium text-foreground">{profile.fullName}</dd>
@@ -212,6 +257,124 @@ export default function VerificationPage() {
             </CardContent>
           </Card>
         </div>
+      </div>
+
+      {/* Verification History Table + Status Distribution */}
+      <div className="grid gap-3 xl:grid-cols-[3fr_1fr]">
+        {/* Verification History Table */}
+        <Card className="border-border shadow-sm">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 border-b border-border pb-2 pt-2.5 px-3">
+            <CardTitle className="text-xs font-semibold text-foreground">Verification History</CardTitle>
+            <div className="flex gap-1.5">
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-6 px-2 text-xs text-muted-foreground hover:text-foreground"
+                onClick={() => downloadCsv(tasks, "verification-history.csv")}
+              >
+                <FileText size={12} className="mr-1" /> CSV
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-6 px-2 text-xs text-muted-foreground hover:text-foreground"
+                onClick={() =>
+                  downloadPdf(
+                    "Verification Logs",
+                    ["ID", "User", "Doc", "Face", "Progress", "Status"],
+                    tasks.map((r) => [r.id, r.user, r.documentStatus, `${r.faceMatch}%`, `${r.progress}%`, r.status]),
+                    "verification-history.pdf",
+                  )
+                }
+              >
+                <FileText size={12} className="mr-1" /> PDF
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent className="p-0">
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow className="bg-muted/30">
+                    <TableHead className="px-3 py-2 text-xs font-medium">ID</TableHead>
+                    <TableHead className="px-3 py-2 text-xs font-medium">User</TableHead>
+                    <TableHead className="px-3 py-2 text-xs font-medium hidden sm:table-cell">Phone</TableHead>
+                    <TableHead className="px-3 py-2 text-xs font-medium hidden md:table-cell">Document</TableHead>
+                    <TableHead className="px-3 py-2 text-xs font-medium hidden lg:table-cell">Face</TableHead>
+                    <TableHead className="px-3 py-2 text-xs font-medium">Status</TableHead>
+                    <TableHead className="px-3 py-2 text-xs font-medium hidden sm:table-cell">Updated</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {tasks.map((task) => (
+                    <TableRow key={task.id} className="transition-colors hover:bg-muted/40 cursor-pointer">
+                      <TableCell className="px-3 py-2 font-mono text-xs font-medium">{task.id}</TableCell>
+                      <TableCell className="px-3 py-2 text-xs font-medium">{task.user}</TableCell>
+                      <TableCell className="px-3 py-2 text-xs hidden sm:table-cell">
+                        {task.phoneVerified ? (
+                          <span className="text-emerald-600 dark:text-emerald-400">Verified</span>
+                        ) : (
+                          <span className="text-muted-foreground">Pending</span>
+                        )}
+                      </TableCell>
+                      <TableCell className="px-3 py-2 text-xs hidden md:table-cell">
+                        <Badge variant={docStatusVariant(task.documentStatus)} className="text-[10px] h-5 px-1.5">{task.documentStatus}</Badge>
+                      </TableCell>
+                      <TableCell className="px-3 py-2 text-xs hidden lg:table-cell">
+                        <span className={`${task.faceMatch >= 80 ? "text-emerald-600 dark:text-emerald-400" : task.faceMatch >= 50 ? "text-amber-600 dark:text-amber-400" : "text-destructive"} font-medium`}>
+                          {task.faceMatch}%
+                        </span>
+                      </TableCell>
+                      <TableCell className="px-3 py-2 text-xs">
+                        <Badge variant={statusVariant(task.status)} className="text-[10px] h-5 px-1.5">{task.status}</Badge>
+                      </TableCell>
+                      <TableCell className="px-3 py-2 text-xs text-muted-foreground hidden sm:table-cell">{task.updatedAt}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Status Distribution Pie Chart */}
+        <Card className="border-border shadow-sm">
+          <CardHeader className="pb-1.5 pt-2.5 px-3">
+            <CardTitle className="text-xs font-semibold text-foreground">Status Distribution</CardTitle>
+          </CardHeader>
+          <CardContent className="px-3 pb-3">
+            <div className="h-36">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={statusDistribution}
+                    dataKey="value"
+                    nameKey="name"
+                    outerRadius={55}
+                    innerRadius={30}
+                    label={false}
+                  >
+                    {statusDistribution.map((entry, index) => (
+                      <Cell key={entry.name} fill={statusColors[index % statusColors.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip content={<ChartTooltip />} />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+            <div className="mt-1 space-y-1">
+              {statusDistribution.map((entry, index) => (
+                <div key={entry.name} className="flex items-center justify-between text-xs">
+                  <div className="flex items-center gap-1.5">
+                    <span className="h-2 w-2 rounded-full" style={{ backgroundColor: statusColors[index] }} />
+                    <span className="text-muted-foreground">{entry.name}</span>
+                  </div>
+                  <span className="font-medium text-foreground">{entry.value}</span>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </section>
   );

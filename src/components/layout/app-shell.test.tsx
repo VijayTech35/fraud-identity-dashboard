@@ -11,6 +11,7 @@ test("renders dashboard navigation", () => {
     </AppShell>,
   );
 
-  expect(screen.getByText("Ad Fraud Detection")).toBeInTheDocument();
+  const navLinks = screen.getAllByText("Ad Fraud Detection");
+  expect(navLinks.length).toBeGreaterThanOrEqual(1);
   expect(screen.getByText("Identity Verification")).toBeInTheDocument();
 });

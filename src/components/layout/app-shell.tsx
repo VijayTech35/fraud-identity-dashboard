@@ -13,13 +13,13 @@ function ThemeToggle() {
 
   return (
     <Button
-      variant="outline"
+      variant="ghost"
       size="icon"
       aria-label="Toggle theme"
-      className="rounded-xl border-border bg-card text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+      className="h-8 w-8 text-muted-foreground hover:bg-muted"
       onClick={() => setTheme(dark ? "light" : "dark")}
     >
-      {dark ? <Sun size={18} /> : <Moon size={18} />}
+      {dark ? <Sun size={16} /> : <Moon size={16} />}
     </Button>
   );
 }
@@ -34,23 +34,22 @@ function SidebarContent() {
 
   return (
     <div className="flex h-full flex-col">
-      <div className="mb-2 flex items-center gap-2">
-        <Shield className="h-6 w-6 text-primary" />
-        <h1 className="text-lg font-bold tracking-tight">TrustGuard</h1>
+      <div className="mb-4 flex items-center gap-2 px-1">
+        <Shield className="h-5 w-5 text-primary" />
+        <h1 className="text-sm font-semibold tracking-tight">TrustGuard</h1>
       </div>
-      <p className="mb-6 text-xs text-muted-foreground">Security Intelligence</p>
-      <nav className="space-y-1.5" aria-label="Main Navigation">
+      <nav className="space-y-0.5" aria-label="Main Navigation">
         {navItems.map(({ href, label, icon: Icon }) => (
           <Link
             key={href}
             href={href}
-            className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200 ${
+            className={`flex items-center gap-3 rounded-md px-3 py-2 text-xs font-medium transition-colors ${
               pathname.startsWith(href)
-                ? "bg-gradient-to-r from-[#4B49AC] to-[#7DA0FA] text-white shadow-lg shadow-indigo-500/30"
-                : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+                ? "bg-primary/10 text-primary"
+                : "text-muted-foreground hover:bg-muted hover:text-foreground"
             }`}
           >
-            <Icon size={17} />
+            <Icon size={15} />
             {label}
           </Link>
         ))}
@@ -63,55 +62,47 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
   return (
-    <div className="dashboard-surface flex min-h-screen bg-background text-foreground">
+    <div className="flex min-h-screen bg-background text-foreground">
       {/* Desktop Sidebar */}
-      <aside className="glass-card hidden w-72 border-r border-border p-5 lg:block">
+      <aside className="fixed top-0 left-0 z-50 hidden h-screen w-60 flex-col border-r border-border bg-card p-4 lg:flex">
         <SidebarContent />
       </aside>
 
-      <div className="flex min-h-screen flex-1 flex-col">
-        {/* Mobile Header + Desktop Header */}
-        <header className="glass-card sticky top-0 z-40 mx-3 mt-3 flex items-center justify-between rounded-2xl border border-border px-4 py-3 lg:mx-8 lg:px-8">
+      <div className="flex min-h-screen flex-1 flex-col lg:ml-60">
+        {/* Header */}
+        <header className="sticky top-0 z-40 flex h-12 items-center justify-between border-b border-border bg-background px-3 lg:px-5">
           <div className="flex items-center gap-3">
-            {/* Mobile Menu Trigger */}
             <Sheet>
               <SheetTrigger asChild>
-                <Button variant="outline" size="icon" className="lg:hidden">
-                  <Menu size={18} />
+                <Button variant="ghost" size="icon" className="h-7 w-7 lg:hidden">
+                  <Menu size={16} />
                   <span className="sr-only">Open menu</span>
                 </Button>
               </SheetTrigger>
-              <SheetContent className="w-72 p-5">
+              <SheetContent className="w-60 p-4">
                 <SidebarContent />
               </SheetContent>
             </Sheet>
 
-            {/* Desktop Logo */}
             <div className="hidden items-center gap-2 lg:flex">
-              <Shield className="h-5 w-5 text-primary" />
-              <span className="text-sm font-semibold">TrustGuard</span>
-            </div>
-
-            <div className="min-w-0">
-              <p className="text-xs text-muted-foreground">Operations Platform</p>
-              <p className="truncate text-sm font-semibold sm:text-base lg:text-lg">Fraud & Identity Intelligence</p>
+              <Shield className="h-4 w-4 text-primary" />
+              <span className="text-xs font-semibold">TrustGuard</span>
+              <span className="text-xs text-muted-foreground">/</span>
+              <p className="text-xs font-medium truncate">
+                {pathname.startsWith("/fraud") ? "Ad Fraud Detection" : pathname.startsWith("/verification") ? "Identity Verification" : "Dashboard"}
+              </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="icon"
-              aria-label="Alerts"
-              className="rounded-xl border-[#98BDFF]/50 bg-[#98BDFF]/15 text-[#4B49AC] hover:bg-[#98BDFF]/25 dark:border-[#7DA0FA]/40 dark:bg-[#7DA0FA]/15 dark:text-[#98BDFF] dark:hover:bg-[#7DA0FA]/25"
-            >
-              <Bell size={17} />
+          <div className="flex items-center gap-1">
+            <Button variant="ghost" size="icon" aria-label="Alerts" className="h-8 w-8 text-muted-foreground hover:bg-muted">
+              <Bell size={15} />
             </Button>
             <ThemeToggle />
           </div>
         </header>
 
-        <main className="flex-1 p-4 lg:p-8">{children}</main>
+        <main className="flex-1 p-3 lg:p-5">{children}</main>
       </div>
     </div>
   );
