@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { Cell, Line, LineChart, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis, BarChart, Bar } from "recharts";
 import { downloadCsv, downloadPdf } from "@/lib/export";
-import { AlertTriangle, Shield, TrendingUp, Zap } from "lucide-react";
+import { AlertTriangle, Download, MoreHorizontal, Shield, TrendingUp, Zap } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -71,10 +71,10 @@ const riskColors: Record<Incident["risk"], string> = {
 const LineTooltip = ({ active, payload }: { active?: boolean; payload?: { name: string; value: number; color: string; payload: { date: string } }[] }) => {
   if (!active || !payload) return null;
   return (
-    <div className="rounded-md border border-border bg-background p-2 shadow-md">
-      <p className="text-xs font-medium text-foreground">{payload[0]?.payload?.date}</p>
+    <div className="rounded-md border border-border bg-background p-1.5 shadow-sm">
+      <p className="text-[11px] font-medium text-foreground">{payload[0]?.payload?.date}</p>
       {payload.map((entry, i) => (
-        <p key={i} className="flex items-center gap-2 text-xs">
+        <p key={i} className="flex items-center gap-2 text-[11px]">
           <span className="h-2 w-2 rounded-full" style={{ backgroundColor: entry.color }} />
           <span className="text-muted-foreground">{entry.name}:</span>
           <span className="font-medium text-foreground">{entry.value}</span>
@@ -87,9 +87,9 @@ const LineTooltip = ({ active, payload }: { active?: boolean; payload?: { name: 
 const PieTooltip = ({ active, payload }: { active?: boolean; payload?: { name: string; value: number }[] }) => {
   if (!active || !payload) return null;
   return (
-    <div className="rounded-md border border-border bg-background p-2 shadow-md">
-      <p className="text-xs font-medium text-foreground">{payload[0].name}</p>
-      <p className="text-xs text-muted-foreground">Value: <span className="font-medium text-foreground">{payload[0].value}%</span></p>
+    <div className="rounded-md border border-border bg-background p-1.5 shadow-sm">
+      <p className="text-[11px] font-medium text-foreground">{payload[0].name}</p>
+      <p className="text-[11px] text-muted-foreground">Value: <span className="font-medium text-foreground">{payload[0].value}%</span></p>
     </div>
   );
 };
@@ -97,10 +97,10 @@ const PieTooltip = ({ active, payload }: { active?: boolean; payload?: { name: s
 const BarTooltip = ({ active, payload }: { active?: boolean; payload?: { name: string; value: number; color: string; payload: { source: string } }[] }) => {
   if (!active || !payload) return null;
   return (
-    <div className="rounded-md border border-border bg-background p-2 shadow-md">
-      <p className="text-xs font-medium text-foreground">{payload[0]?.payload?.source}</p>
+    <div className="rounded-md border border-border bg-background p-1.5 shadow-sm">
+      <p className="text-[11px] font-medium text-foreground">{payload[0]?.payload?.source}</p>
       {payload.map((entry, i) => (
-        <p key={i} className="flex items-center gap-2 text-xs">
+        <p key={i} className="flex items-center gap-2 text-[11px]">
           <span className="h-2 w-2 rounded-full" style={{ backgroundColor: entry.color }} />
           <span className="text-muted-foreground">{entry.name}:</span>
           <span className="font-medium text-foreground">{entry.value.toLocaleString()}</span>
@@ -133,33 +133,34 @@ export default function FraudPage() {
   };
 
   return (
-    <section className="space-y-4 text-foreground">
-      {/* Compact Header */}
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+    <section className="space-y-3 text-foreground">
+      {/* Page Header */}
+      <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Shield size={20} className="text-primary" />
-          <div>
-            <h2 className="text-base font-semibold tracking-tight">Ad Fraud Detection</h2>
-            <p className="text-xs text-muted-foreground">Traffic monitoring & campaign risk signals</p>
-          </div>
+          <h2 className="text-sm font-semibold">Ad Fraud Detection</h2>
+          <Badge variant="outline" className="text-[10px] h-4.5">
+            <TrendingUp size={10} className="mr-0.5" /> {dateRange}
+          </Badge>
         </div>
-        <div className="flex items-center gap-2">
-          <Badge variant="outline" className="text-xs">
-            <TrendingUp size={12} className="mr-1" /> {dateRange}
+        <div className="flex items-center gap-1">
+          <Badge variant="destructive" className="text-[10px] h-4.5">
+            <AlertTriangle size={10} className="mr-0.5" /> 18 critical
           </Badge>
-          <Badge variant="destructive" className="text-xs">
-            <AlertTriangle size={12} className="mr-1" /> 18 critical
-          </Badge>
-          <span className="text-xs text-muted-foreground">{new Date().toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}</span>
+          <Button variant="ghost" size="sm" className="h-6 px-2 text-[11px] text-muted-foreground hover:text-foreground">
+            <Download size={11} className="mr-1" /> Export
+          </Button>
+          <Button variant="ghost" size="sm" className="h-6 px-2 text-[11px] text-muted-foreground hover:text-foreground">
+            <MoreHorizontal size={11} />
+          </Button>
         </div>
       </div>
 
       {/* Filters */}
-      <Card className="border-border shadow-sm">
-        <CardContent className="p-2.5">
+      <Card className="border-border">
+        <CardContent className="p-2">
           <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
             <Select value={dateRange} onValueChange={setDateRange}>
-              <SelectTrigger aria-label="Date range" className="bg-muted/30 h-7 text-xs">
+              <SelectTrigger aria-label="Date range" className="bg-muted/20 h-7 text-[11px]">
                 <SelectValue placeholder="Select range" />
               </SelectTrigger>
               <SelectContent>
@@ -168,26 +169,26 @@ export default function FraudPage() {
                 <SelectItem value="90d">Last 90 days</SelectItem>
               </SelectContent>
             </Select>
-            <Input aria-label="Campaign filter" placeholder="Campaign" className="bg-muted/30 h-7 text-xs" value={campaign} onChange={(e) => setCampaign(e.target.value)} />
-            <Input aria-label="Traffic source filter" placeholder="Traffic source" className="bg-muted/30 h-7 text-xs" value={source} onChange={(e) => setSource(e.target.value)} />
-            <Input aria-label="DSP filter" placeholder="DSP" className="bg-muted/30 h-7 text-xs" value={dsp} onChange={(e) => setDsp(e.target.value)} />
+            <Input aria-label="Campaign filter" placeholder="Campaign" className="bg-muted/20 h-7 text-[11px]" value={campaign} onChange={(e) => setCampaign(e.target.value)} />
+            <Input aria-label="Traffic source filter" placeholder="Traffic source" className="bg-muted/20 h-7 text-[11px]" value={source} onChange={(e) => setSource(e.target.value)} />
+            <Input aria-label="DSP filter" placeholder="DSP" className="bg-muted/20 h-7 text-[11px]" value={dsp} onChange={(e) => setDsp(e.target.value)} />
           </div>
         </CardContent>
       </Card>
 
       {/* Metrics */}
-      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-4">
         {metrics.map((metric) => (
-          <Card key={metric.label} className="border-border shadow-sm">
-            <CardContent className="p-3">
+          <Card key={metric.label} className="border-border">
+            <CardContent className="p-2.5">
               <div className="flex items-center justify-between">
-                <p className="text-xs text-muted-foreground">{metric.label}</p>
-                <div className="rounded-md bg-foreground/10 p-1.5">
-                  <Zap size={12} className="text-foreground" />
+                <p className="text-[11px] text-muted-foreground">{metric.label}</p>
+                <div className="rounded-md bg-muted/50 p-1.5">
+                  <Zap size={11} className="text-muted-foreground" />
                 </div>
               </div>
-              <p className="mt-1 text-xl font-semibold text-foreground">{metric.value}</p>
-              <p className={`mt-0.5 text-[11px] ${metric.positive ? "text-emerald-600 dark:text-emerald-400" : "text-muted-foreground"}`}>{metric.delta}</p>
+              <p className="mt-0.5 text-lg font-semibold">{metric.value}</p>
+              <p className={`text-[10px] ${metric.positive ? "text-emerald-600" : "text-muted-foreground"}`}>{metric.delta}</p>
             </CardContent>
           </Card>
         ))}
@@ -195,12 +196,12 @@ export default function FraudPage() {
 
       {/* Charts */}
       <div className="grid gap-3 xl:grid-cols-2">
-        <Card className="border-border shadow-sm">
-          <CardHeader className="pb-1 pt-2.5 px-3">
-            <CardTitle className="text-xs font-semibold text-foreground">Fraud Trend</CardTitle>
+        <Card className="border-border">
+          <CardHeader className="pb-1 pt-2 px-3">
+            <CardTitle className="text-xs font-semibold">Fraud Trend</CardTitle>
           </CardHeader>
           <CardContent className="px-3 pb-3">
-            <div className="h-48">
+            <div className="h-44">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={trend}>
                   <XAxis dataKey="date" tick={{ fontSize: 10 }} />
@@ -215,15 +216,15 @@ export default function FraudPage() {
           </CardContent>
         </Card>
 
-        <Card className="border-border shadow-sm">
-          <CardHeader className="pb-1 pt-2.5 px-3">
-            <CardTitle className="text-xs font-semibold text-foreground">Fraud Distribution</CardTitle>
+        <Card className="border-border">
+          <CardHeader className="pb-1 pt-2 px-3">
+            <CardTitle className="text-xs font-semibold">Fraud Distribution</CardTitle>
           </CardHeader>
           <CardContent className="px-3 pb-3">
-            <div className="h-48">
+            <div className="h-44">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
-                  <Pie data={distribution} dataKey="value" nameKey="name" outerRadius={75} label={{ fontSize: 10 }}>
+                  <Pie data={distribution} dataKey="value" nameKey="name" outerRadius={70} label={{ fontSize: 9 }}>
                     {distribution.map((entry, index) => (
                       <Cell key={entry.name} fill={colors[index % colors.length]} />
                     ))}
@@ -235,12 +236,12 @@ export default function FraudPage() {
           </CardContent>
         </Card>
 
-        <Card className="border-border shadow-sm">
-          <CardHeader className="pb-1 pt-2.5 px-3">
-            <CardTitle className="text-xs font-semibold text-foreground">Traffic Sources</CardTitle>
+        <Card className="border-border">
+          <CardHeader className="pb-1 pt-2 px-3">
+            <CardTitle className="text-xs font-semibold">Traffic Sources</CardTitle>
           </CardHeader>
           <CardContent className="px-3 pb-3">
-            <div className="h-48">
+            <div className="h-44">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={traffic}>
                   <XAxis dataKey="source" tick={{ fontSize: 10 }} />
@@ -254,12 +255,12 @@ export default function FraudPage() {
           </CardContent>
         </Card>
 
-        <Card className="border-border shadow-sm">
-          <CardHeader className="pb-1 pt-2.5 px-3">
-            <CardTitle className="text-xs font-semibold text-foreground">Fraud Hotspots</CardTitle>
+        <Card className="border-border">
+          <CardHeader className="pb-1 pt-2 px-3">
+            <CardTitle className="text-xs font-semibold">Fraud Hotspots</CardTitle>
           </CardHeader>
           <CardContent className="pt-0 px-3 pb-3">
-            <div className="relative h-48 overflow-hidden rounded-lg border border-border bg-slate-900">
+            <div className="relative h-44 overflow-hidden rounded-md border border-border bg-slate-900">
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_22%_42%,#a3b3c8,transparent_26%),radial-gradient(circle_at_48%_30%,#71839d,transparent_22%),radial-gradient(circle_at_72%_45%,#9fb0c6,transparent_26%)] opacity-80" />
               <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.08)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.08)_1px,transparent_1px)] bg-[size:32px_32px] opacity-30" />
               {hotspots.map((spot) => (
@@ -278,32 +279,15 @@ export default function FraudPage() {
       </div>
 
       {/* Incidents Table */}
-      <Card className="border-border shadow-sm">
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 border-b border-border pb-2 pt-2.5 px-3">
-          <CardTitle className="text-xs font-semibold text-foreground">Fraud Incidents</CardTitle>
-          <div className="flex gap-1.5">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-6 px-2 text-xs text-muted-foreground hover:text-foreground"
-              onClick={() => downloadCsv(filtered, "fraud-incidents.csv")}
-            >
-              Export CSV
+      <Card className="border-border">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 border-b border-border pb-1.5 pt-2 px-3">
+          <CardTitle className="text-xs font-semibold">Fraud Incidents</CardTitle>
+          <div className="flex gap-1">
+            <Button variant="ghost" size="sm" className="h-5 px-1.5 text-[10px] text-muted-foreground hover:text-foreground" onClick={() => downloadCsv(filtered, "fraud-incidents.csv")}>
+              CSV
             </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-6 px-2 text-xs text-muted-foreground hover:text-foreground"
-              onClick={() =>
-                downloadPdf(
-                  "Fraud Incidents",
-                  ["ID", "Campaign", "Source", "DSP", "Risk", "Status"],
-                  filtered.map((r) => [r.id, r.campaign, r.source, r.dsp, r.risk, r.status]),
-                  "fraud-incidents.pdf",
-                )
-              }
-            >
-              Export PDF
+            <Button variant="ghost" size="sm" className="h-5 px-1.5 text-[10px] text-muted-foreground hover:text-foreground" onClick={() => downloadPdf("Fraud Incidents", ["ID", "Campaign", "Source", "DSP", "Risk", "Status"], filtered.map((r) => [r.id, r.campaign, r.source, r.dsp, r.risk, r.status]), "fraud-incidents.pdf")}>
+              PDF
             </Button>
           </div>
         </CardHeader>
@@ -311,40 +295,32 @@ export default function FraudPage() {
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
-                <TableRow className="bg-muted/30">
-                  <TableHead className="px-3 py-2 text-xs font-medium">Incident</TableHead>
-                  <TableHead className="px-3 py-2 text-xs font-medium">Campaign</TableHead>
-                  <TableHead className="px-3 py-2 text-xs font-medium hidden md:table-cell">Source</TableHead>
-                  <TableHead className="px-3 py-2 text-xs font-medium hidden lg:table-cell">DSP</TableHead>
-                  <TableHead className="px-3 py-2 text-xs font-medium">Risk</TableHead>
-                  <TableHead className="px-3 py-2 text-xs font-medium hidden sm:table-cell">Status</TableHead>
-                  <TableHead className="px-3 py-2 text-xs font-medium">Actions</TableHead>
+                <TableRow className="bg-muted/20 hover:bg-muted/20">
+                  <TableHead className="px-2 py-1.5 text-[11px] font-medium">Incident</TableHead>
+                  <TableHead className="px-2 py-1.5 text-[11px] font-medium">Campaign</TableHead>
+                  <TableHead className="px-2 py-1.5 text-[11px] font-medium hidden md:table-cell">Source</TableHead>
+                  <TableHead className="px-2 py-1.5 text-[11px] font-medium hidden lg:table-cell">DSP</TableHead>
+                  <TableHead className="px-2 py-1.5 text-[11px] font-medium">Risk</TableHead>
+                  <TableHead className="px-2 py-1.5 text-[11px] font-medium hidden sm:table-cell">Status</TableHead>
+                  <TableHead className="px-2 py-1.5 text-[11px] font-medium">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filtered.map((item) => (
-                  <TableRow key={item.id} className="transition-colors hover:bg-muted/40 cursor-pointer">
-                    <TableCell className="px-3 py-2 font-mono text-xs font-medium">{item.id}</TableCell>
-                    <TableCell className="px-3 py-2 text-xs">{item.campaign}</TableCell>
-                    <TableCell className="px-3 py-2 text-xs hidden md:table-cell">{item.source}</TableCell>
-                    <TableCell className="px-3 py-2 text-xs hidden lg:table-cell">{item.dsp}</TableCell>
-                    <TableCell className="px-3 py-2">
-                      <Badge variant="outline" className={riskColors[item.risk] + " text-[10px] h-5 px-1.5"}>
-                        {item.risk}
-                      </Badge>
+                  <TableRow key={item.id} className="transition-colors hover:bg-muted/30 cursor-pointer">
+                    <TableCell className="px-2 py-1.5 font-mono text-[11px] font-medium">{item.id}</TableCell>
+                    <TableCell className="px-2 py-1.5 text-[11px]">{item.campaign}</TableCell>
+                    <TableCell className="px-2 py-1.5 text-[11px] hidden md:table-cell">{item.source}</TableCell>
+                    <TableCell className="px-2 py-1.5 text-[11px] hidden lg:table-cell">{item.dsp}</TableCell>
+                    <TableCell className="px-2 py-1.5">
+                      <Badge variant="outline" className={riskColors[item.risk] + " text-[10px] h-4.5 px-1.5"}>{item.risk}</Badge>
                     </TableCell>
-                    <TableCell className="px-3 py-2 text-xs hidden sm:table-cell">{item.status}</TableCell>
-                    <TableCell className="px-3 py-2">
-                      <div className="flex flex-wrap gap-1">
-                        <Button variant="outline" size="sm" className="h-6 px-2 text-[10px]" onClick={() => mutate(item.id, "Blocked")}>
-                          Block
-                        </Button>
-                        <Button variant="outline" size="sm" className="h-6 px-2 text-[10px]" onClick={() => mutate(item.id, "Flagged")}>
-                          Flag
-                        </Button>
-                        <Button variant="outline" size="sm" className="h-6 px-2 text-[10px]" onClick={() => mutate(item.id, "Investigating")}>
-                          Investigate
-                        </Button>
+                    <TableCell className="px-2 py-1.5 text-[11px] hidden sm:table-cell">{item.status}</TableCell>
+                    <TableCell className="px-2 py-1.5">
+                      <div className="flex flex-wrap gap-0.5">
+                        <Button variant="outline" size="sm" className="h-5 px-1.5 text-[10px]" onClick={() => mutate(item.id, "Blocked")}>Block</Button>
+                        <Button variant="outline" size="sm" className="h-5 px-1.5 text-[10px]" onClick={() => mutate(item.id, "Flagged")}>Flag</Button>
+                        <Button variant="outline" size="sm" className="h-5 px-1.5 text-[10px]" onClick={() => mutate(item.id, "Investigating")}>Investigate</Button>
                       </div>
                     </TableCell>
                   </TableRow>

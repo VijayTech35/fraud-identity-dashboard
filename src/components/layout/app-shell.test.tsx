@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { AppShell } from "./app-shell";
 
-jest.mock("next/navigation", () => ({ usePathname: () => "/fraud" }));
+jest.mock("next/navigation", () => ({ usePathname: () => "/verification" }));
 jest.mock("next-themes", () => ({ useTheme: () => ({ theme: "light", setTheme: jest.fn() }) }));
 
 test("renders dashboard navigation", () => {
@@ -11,7 +11,8 @@ test("renders dashboard navigation", () => {
     </AppShell>,
   );
 
-  const navLinks = screen.getAllByText("Ad Fraud Detection");
+  const navLinks = screen.getAllByText("Dashboard");
   expect(navLinks.length).toBeGreaterThanOrEqual(1);
-  expect(screen.getByText("Identity Verification")).toBeInTheDocument();
+  const verLinks = screen.getAllByText("Verification");
+  expect(verLinks.length).toBeGreaterThanOrEqual(1);
 });
