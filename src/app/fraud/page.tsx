@@ -4,6 +4,12 @@ import { useMemo, useState } from "react";
 import { Cell, Line, LineChart, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis, BarChart, Bar } from "recharts";
 import { downloadCsv, downloadPdf } from "@/lib/export";
 import { AlertTriangle, Shield, TrendingUp, Zap } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 type Incident = {
   id: string;
@@ -56,6 +62,12 @@ const seed: Incident[] = [
   { id: "INC-2982", campaign: "Gaming Push", source: "Affiliates", dsp: "Moloco", risk: "High", status: "Blocked" },
 ];
 
+const riskColors: Record<Incident["risk"], string> = {
+  High: "bg-[#F3797E]/25 text-[#b4232f] dark:text-[#F3797E]",
+  Medium: "bg-amber-500/25 text-amber-700 dark:text-amber-400",
+  Low: "bg-[#7DA0FA]/25 text-[#4B49AC] dark:text-[#98BDFF]",
+};
+
 export default function FraudPage() {
   const [dateRange, setDateRange] = useState("7d");
   const [campaign, setCampaign] = useState("");
@@ -79,124 +91,172 @@ export default function FraudPage() {
   };
 
   return (
-    <section className="space-y-5 text-slate-900 dark:text-slate-100">
-      <div className="glass-card relative overflow-hidden rounded-3xl p-6">
+    <section className="space-y-5 text-foreground">
+      {/* Hero Section */}
+      <div className="glass-card relative overflow-hidden rounded-3xl p-4 sm:p-6">
         <div className="absolute -right-8 -top-10 h-40 w-40 rounded-full bg-indigo-500/20 blur-2xl" />
         <div className="absolute -bottom-10 left-1/2 h-32 w-32 rounded-full bg-cyan-400/20 blur-2xl" />
-        <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-[#98BDFF]/30 px-3 py-1 text-xs font-medium text-[#4B49AC] dark:bg-[#7DA0FA]/20 dark:text-[#98BDFF]">
-            <Shield size={14} /> Threat Monitoring
+        <div className="relative flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-[#98BDFF]/30 px-3 py-1 text-xs font-medium text-[#4B49AC] dark:bg-[#7DA0FA]/20 dark:text-[#98BDFF]">
+              <Shield size={14} /> Threat Monitoring
+            </div>
+            <h2 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">Ad Fraud Detection Dashboard</h2>
+            <p className="mt-1 text-sm text-muted-foreground">Monitor suspicious traffic, blocked incidents, and campaign risk signals.</p>
           </div>
-          <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-slate-100">Ad Fraud Detection Dashboard</h2>
-          <p className="text-sm text-slate-600 dark:text-slate-300">Monitor suspicious traffic, blocked incidents, and campaign risk signals.</p>
-        </div>
-        <div className="flex items-center gap-2">
-          <p className="inline-flex items-center gap-1 rounded-full bg-[#7DA0FA]/25 px-3 py-1 text-xs font-medium text-[#4B49AC] dark:bg-[#7DA0FA]/20 dark:text-[#98BDFF]"><TrendingUp size={14} /> Date range: {dateRange}</p>
-          <p className="inline-flex items-center gap-1 rounded-full bg-[#F3797E]/25 px-3 py-1 text-xs font-medium text-[#b4232f] dark:bg-[#F3797E]/20 dark:text-[#F3797E]"><AlertTriangle size={14} /> 18 critical alerts</p>
-        </div>
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="inline-flex items-center gap-1 rounded-full bg-[#7DA0FA]/25 px-3 py-1 text-xs font-medium text-[#4B49AC] dark:bg-[#7DA0FA]/20 dark:text-[#98BDFF]">
+              <TrendingUp size={14} /> Date range: {dateRange}
+            </span>
+            <span className="inline-flex items-center gap-1 rounded-full bg-[#F3797E]/25 px-3 py-1 text-xs font-medium text-[#b4232f] dark:bg-[#F3797E]/20 dark:text-[#F3797E]">
+              <AlertTriangle size={14} /> 18 critical alerts
+            </span>
+          </div>
         </div>
       </div>
 
-      <section className="glass-card grid gap-3 rounded-2xl p-4 md:grid-cols-4">
-        <select aria-label="Date range" value={dateRange} onChange={(e) => setDateRange(e.target.value)} className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-900">
-          <option value="7d">Last 7 days</option>
-          <option value="30d">Last 30 days</option>
-          <option value="90d">Last 90 days</option>
-        </select>
-        <input aria-label="Campaign filter" placeholder="Campaign" className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-900" value={campaign} onChange={(e) => setCampaign(e.target.value)} />
-        <input aria-label="Traffic source filter" placeholder="Traffic source" className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-900" value={source} onChange={(e) => setSource(e.target.value)} />
-        <input aria-label="DSP filter" placeholder="DSP" className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm dark:border-slate-700 dark:bg-slate-900" value={dsp} onChange={(e) => setDsp(e.target.value)} />
-      </section>
+      {/* Filters */}
+      <Card className="glass-card border-border p-3 sm:p-4">
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <Select value={dateRange} onValueChange={setDateRange}>
+            <SelectTrigger aria-label="Date range" className="bg-card">
+              <SelectValue placeholder="Select range" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="7d">Last 7 days</SelectItem>
+              <SelectItem value="30d">Last 30 days</SelectItem>
+              <SelectItem value="90d">Last 90 days</SelectItem>
+            </SelectContent>
+          </Select>
+          <Input aria-label="Campaign filter" placeholder="Campaign" className="bg-card" value={campaign} onChange={(e) => setCampaign(e.target.value)} />
+          <Input aria-label="Traffic source filter" placeholder="Traffic source" className="bg-card" value={source} onChange={(e) => setSource(e.target.value)} />
+          <Input aria-label="DSP filter" placeholder="DSP" className="bg-card" value={dsp} onChange={(e) => setDsp(e.target.value)} />
+        </div>
+      </Card>
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      {/* Metrics */}
+      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         {metrics.map((metric) => (
-          <article key={metric.label} className="glass-card rounded-2xl p-4 shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
-            <div className="mb-3 inline-flex rounded-lg bg-slate-900 p-2 text-white dark:bg-slate-100 dark:text-slate-900">
-              <Zap size={14} />
-            </div>
-            <p className="text-sm text-slate-700 dark:text-slate-300">{metric.label}</p>
-            <p className="mt-2 text-2xl font-semibold text-slate-900 dark:text-slate-100">{metric.value}</p>
-            <p className={`mt-2 text-xs ${metric.positive ? "text-emerald-600" : "text-slate-500 dark:text-slate-400"}`}>{metric.delta}</p>
-          </article>
+          <Card key={metric.label} className="glass-card border-border shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
+            <CardContent className="p-4">
+              <div className="mb-3 inline-flex rounded-lg bg-foreground p-2 text-background">
+                <Zap size={14} />
+              </div>
+              <p className="text-sm text-muted-foreground">{metric.label}</p>
+              <p className="mt-2 text-2xl font-semibold text-foreground">{metric.value}</p>
+              <p className={`mt-2 text-xs ${metric.positive ? "text-emerald-600 dark:text-emerald-400" : "text-muted-foreground"}`}>{metric.delta}</p>
+            </CardContent>
+          </Card>
         ))}
       </div>
 
+      {/* Charts */}
       <div className="grid gap-4 xl:grid-cols-2">
-        <article className="glass-card rounded-2xl p-4 shadow-sm">
-          <h3 className="mb-1 text-sm font-semibold text-slate-900 dark:text-slate-100">Fraud Trend</h3>
-          <p className="mb-4 text-xs text-slate-500 dark:text-slate-400">Daily risk trend and blocked event volume</p>
-          <div className="h-72">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={trend}>
-                <XAxis dataKey="date" />
-                <YAxis yAxisId="left" />
-                <YAxis yAxisId="right" orientation="right" />
-                <Tooltip />
-                <Line yAxisId="left" type="monotone" dataKey="fraudRate" stroke="#F3797E" strokeWidth={2} />
-                <Line yAxisId="right" type="monotone" dataKey="blocked" stroke="#4B49AC" strokeWidth={2} />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-        </article>
-        <article className="glass-card rounded-2xl p-4 shadow-sm">
-          <h3 className="mb-1 text-sm font-semibold text-slate-900 dark:text-slate-100">Fraud Distribution</h3>
-          <p className="mb-4 text-xs text-slate-500 dark:text-slate-400">Breakdown by detected fraud type</p>
-          <div className="h-72">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie data={distribution} dataKey="value" nameKey="name" outerRadius={100} label>
-                  {distribution.map((entry, index) => (
-                    <Cell key={entry.name} fill={colors[index % colors.length]} />
-                  ))}
-                </Pie>
-                <Tooltip />
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
-        </article>
-        <article className="glass-card rounded-2xl p-4 shadow-sm">
-          <h3 className="mb-1 text-sm font-semibold text-slate-900 dark:text-slate-100">Traffic Sources</h3>
-          <p className="mb-4 text-xs text-slate-500 dark:text-slate-400">Clean vs suspicious sessions by source</p>
-          <div className="h-72">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={traffic}>
-                <XAxis dataKey="source" />
-                <YAxis />
-                <Tooltip />
-                <Bar dataKey="clean" fill="#7DA0FA" />
-                <Bar dataKey="suspicious" fill="#F3797E" />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </article>
-        <article className="glass-card rounded-2xl p-4 shadow-sm">
-          <h3 className="mb-1 text-sm font-semibold text-slate-900 dark:text-slate-100">Fraud Hotspots</h3>
-          <p className="mb-4 text-xs text-slate-500 dark:text-slate-400">Geo signals from suspicious traffic clusters</p>
-          <div className="relative h-72 overflow-hidden rounded-xl border border-slate-200 bg-slate-900 dark:border-slate-700">
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_22%_42%,#a3b3c8,transparent_26%),radial-gradient(circle_at_48%_30%,#71839d,transparent_22%),radial-gradient(circle_at_72%_45%,#9fb0c6,transparent_26%)] opacity-80" />
-            <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.08)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.08)_1px,transparent_1px)] bg-[size:32px_32px] opacity-30" />
-            {hotspots.map((spot) => (
-              <div key={spot.city} className="absolute -translate-x-1/2 -translate-y-1/2" style={{ left: spot.x, top: spot.y }}>
-                <button
-                  aria-label={`${spot.city} hotspot ${spot.risk} risk`}
-                  title={`${spot.city} • ${spot.risk}`}
-                  className="h-3.5 w-3.5 rounded-full bg-rose-500 ring-8 ring-rose-500/25 transition hover:scale-125"
-                />
-                <p className="mt-1 text-[10px] font-medium text-rose-100">{spot.city}</p>
-              </div>
-            ))}
-          </div>
-        </article>
+        <Card className="glass-card border-border shadow-sm">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-foreground">Fraud Trend</CardTitle>
+            <CardDescription>Daily risk trend and blocked event volume</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="h-72">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={trend}>
+                  <XAxis dataKey="date" />
+                  <YAxis yAxisId="left" />
+                  <YAxis yAxisId="right" orientation="right" />
+                  <Tooltip />
+                  <Line yAxisId="left" type="monotone" dataKey="fraudRate" stroke="#F3797E" strokeWidth={2} />
+                  <Line yAxisId="right" type="monotone" dataKey="blocked" stroke="#4B49AC" strokeWidth={2} />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="glass-card border-border shadow-sm">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-foreground">Fraud Distribution</CardTitle>
+            <CardDescription>Breakdown by detected fraud type</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="h-72">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie data={distribution} dataKey="value" nameKey="name" outerRadius={100} label>
+                    {distribution.map((entry, index) => (
+                      <Cell key={entry.name} fill={colors[index % colors.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="glass-card border-border shadow-sm">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-foreground">Traffic Sources</CardTitle>
+            <CardDescription>Clean vs suspicious sessions by source</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="h-72">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={traffic}>
+                  <XAxis dataKey="source" />
+                  <YAxis />
+                  <Tooltip />
+                  <Bar dataKey="clean" fill="#7DA0FA" />
+                  <Bar dataKey="suspicious" fill="#F3797E" />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="glass-card border-border shadow-sm">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-foreground">Fraud Hotspots</CardTitle>
+            <CardDescription>Geo signals from suspicious traffic clusters</CardDescription>
+          </CardHeader>
+          <CardContent className="pt-0">
+            <div className="relative h-72 overflow-hidden rounded-xl border border-border bg-slate-900">
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_22%_42%,#a3b3c8,transparent_26%),radial-gradient(circle_at_48%_30%,#71839d,transparent_22%),radial-gradient(circle_at_72%_45%,#9fb0c6,transparent_26%)] opacity-80" />
+              <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.08)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.08)_1px,transparent_1px)] bg-[size:32px_32px] opacity-30" />
+              {hotspots.map((spot) => (
+                <div key={spot.city} className="absolute -translate-x-1/2 -translate-y-1/2" style={{ left: spot.x, top: spot.y }}>
+                  <button
+                    aria-label={`${spot.city} hotspot ${spot.risk} risk`}
+                    title={`${spot.city} • ${spot.risk}`}
+                    className="h-3.5 w-3.5 rounded-full bg-rose-500 ring-8 ring-rose-500/25 transition-all duration-300 hover:scale-125"
+                  />
+                  <p className="mt-1 text-[10px] font-medium text-rose-100">{spot.city}</p>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
-      <section className="glass-card overflow-hidden rounded-2xl shadow-sm">
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 p-4 dark:border-slate-800">
-          <h3 className="text-sm font-semibold">Fraud Incidents</h3>
+      {/* Incidents Table */}
+      <Card className="glass-card border-border shadow-sm">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 border-b border-border p-4">
+          <div>
+            <CardTitle className="text-foreground">Fraud Incidents</CardTitle>
+          </div>
           <div className="flex gap-2">
-            <button className="rounded-lg border border-[#7978E9]/50 bg-[#7978E9]/15 px-3 py-1.5 text-sm text-[#4B49AC] transition hover:bg-[#7978E9]/25 dark:text-[#98BDFF]" onClick={() => downloadCsv(filtered, "fraud-incidents.csv")}>Export CSV</button>
-            <button
-              className="rounded-lg border border-[#98BDFF]/60 bg-[#98BDFF]/20 px-3 py-1.5 text-sm text-[#4B49AC] transition hover:bg-[#98BDFF]/30 dark:text-[#98BDFF]"
+            <Button
+              variant="outline"
+              size="sm"
+              className="border-[#7978E9]/50 bg-[#7978E9]/15 text-[#4B49AC] hover:bg-[#7978E9]/25 dark:text-[#98BDFF]"
+              onClick={() => downloadCsv(filtered, "fraud-incidents.csv")}
+            >
+              Export CSV
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="border-[#98BDFF]/60 bg-[#98BDFF]/20 text-[#4B49AC] hover:bg-[#98BDFF]/30 dark:text-[#98BDFF]"
               onClick={() =>
                 downloadPdf(
                   "Fraud Incidents",
@@ -207,35 +267,56 @@ export default function FraudPage() {
               }
             >
               Export PDF
-            </button>
+            </Button>
           </div>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="min-w-full text-left text-sm">
-            <thead className="bg-slate-50 dark:bg-slate-800">
-              <tr>
-                <th className="px-4 py-3">Incident</th><th className="px-4 py-3">Campaign</th><th className="px-4 py-3">Source</th><th className="px-4 py-3">DSP</th><th className="px-4 py-3">Risk</th><th className="px-4 py-3">Status</th><th className="px-4 py-3">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map((item) => (
-                <tr key={item.id} className="border-t border-slate-100 transition hover:bg-slate-50/60 dark:border-slate-800 dark:hover:bg-slate-800/30">
-                  <td className="px-4 py-3">{item.id}</td><td className="px-4 py-3">{item.campaign}</td><td className="px-4 py-3">{item.source}</td><td className="px-4 py-3">{item.dsp}</td>
-                  <td className="px-4 py-3"><span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${item.risk === "High" ? "bg-[#F3797E]/25 text-[#b4232f] dark:text-[#F3797E]" : "bg-[#7DA0FA]/25 text-[#4B49AC] dark:text-[#98BDFF]"}`}>{item.risk}</span></td>
-                  <td className="px-4 py-3">{item.status}</td>
-                  <td className="px-4 py-3">
-                    <div className="flex gap-1">
-                      <button className="rounded-md border px-2 py-1 text-xs hover:bg-slate-100 dark:hover:bg-slate-800" onClick={() => mutate(item.id, "Blocked")}>Block</button>
-                      <button className="rounded-md border px-2 py-1 text-xs hover:bg-slate-100 dark:hover:bg-slate-800" onClick={() => mutate(item.id, "Flagged")}>Flag</button>
-                      <button className="rounded-md border px-2 py-1 text-xs hover:bg-slate-100 dark:hover:bg-slate-800" onClick={() => mutate(item.id, "Investigating")}>Investigate</button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </section>
+        </CardHeader>
+        <CardContent className="p-0">
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow className="bg-muted/50">
+                  <TableHead className="px-4 py-3">Incident</TableHead>
+                  <TableHead className="px-4 py-3">Campaign</TableHead>
+                  <TableHead className="px-4 py-3 hidden md:table-cell">Source</TableHead>
+                  <TableHead className="px-4 py-3 hidden lg:table-cell">DSP</TableHead>
+                  <TableHead className="px-4 py-3">Risk</TableHead>
+                  <TableHead className="px-4 py-3 hidden sm:table-cell">Status</TableHead>
+                  <TableHead className="px-4 py-3">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filtered.map((item) => (
+                  <TableRow key={item.id} className="border-border">
+                    <TableCell className="px-4 py-3 font-medium">{item.id}</TableCell>
+                    <TableCell className="px-4 py-3">{item.campaign}</TableCell>
+                    <TableCell className="px-4 py-3 hidden md:table-cell">{item.source}</TableCell>
+                    <TableCell className="px-4 py-3 hidden lg:table-cell">{item.dsp}</TableCell>
+                    <TableCell className="px-4 py-3">
+                      <Badge variant="outline" className={riskColors[item.risk]}>
+                        {item.risk}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="px-4 py-3 hidden sm:table-cell">{item.status}</TableCell>
+                    <TableCell className="px-4 py-3">
+                      <div className="flex flex-wrap gap-1">
+                        <Button variant="outline" size="sm" className="h-7 px-2 text-xs" onClick={() => mutate(item.id, "Blocked")}>
+                          Block
+                        </Button>
+                        <Button variant="outline" size="sm" className="h-7 px-2 text-xs" onClick={() => mutate(item.id, "Flagged")}>
+                          Flag
+                        </Button>
+                        <Button variant="outline" size="sm" className="h-7 px-2 text-xs" onClick={() => mutate(item.id, "Investigating")}>
+                          Investigate
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        </CardContent>
+      </Card>
     </section>
   );
 }
