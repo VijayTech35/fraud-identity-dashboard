@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Bell, ChevronDown, ChevronLeft, ChevronRight, FileText, LayoutDashboard, Mail, Menu, Moon, ScanFace, Settings, Shield, Sun, UserRound } from "lucide-react";
+import { Bell, ChevronDown, ChevronLeft, ChevronRight, Mail, Menu, Moon, ScanFace, Shield, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -27,11 +27,8 @@ function ThemeToggle() {
 }
 
 const navItems = [
-  { href: "/", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/", label: "Users", icon: UserRound },
   { href: "/verification", label: "Verification", icon: ScanFace },
-  { href: "/fraud", label: "Fraud Detection", icon: FileText },
-  { href: "/", label: "Settings", icon: Settings },
+  { href: "/fraud", label: "Fraud Detection", icon: Shield },
 ];
 
 function SidebarNav({ collapsed, className }: { collapsed?: boolean; className?: string }) {
@@ -73,7 +70,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     ? "Identity Verification"
     : pathname.startsWith("/fraud")
       ? "Ad Fraud Detection"
-      : "Dashboard";
+      : "Verification";
 
   return (
     <div className="flex min-h-screen bg-muted/40 text-foreground">
