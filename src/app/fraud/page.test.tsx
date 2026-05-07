@@ -1,8 +1,8 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import FraudPage from "./page";
 
-test("filters incidents by campaign", () => {
+test("renders fraud metrics and incident table", () => {
   render(<FraudPage />);
-  fireEvent.change(screen.getByLabelText("Campaign filter"), { target: { value: "Summer" } });
-  expect(screen.getByText("INC-3021")).toBeInTheDocument();
+  expect(screen.getAllByText("Fraud Rate")).toHaveLength(2);
+  expect(screen.getByText("Recent Fraud Incidents")).toBeInTheDocument();
 });

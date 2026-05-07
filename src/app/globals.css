@@ -25,7 +25,7 @@
 }
 
 :root {
-  --background: #f8fafc;
+  --background: #f0f2f5;
   --foreground: #0f172a;
   --card: #ffffff;
   --card-foreground: #0f172a;
@@ -33,16 +33,16 @@
   --popover-foreground: #0f172a;
   --primary: #4b49ac;
   --primary-foreground: #ffffff;
-  --secondary: #f1f5f9;
+  --secondary: #e5e7eb;
   --secondary-foreground: #0f172a;
-  --muted: #f1f5f9;
-  --muted-foreground: #64748b;
-  --accent: #f1f5f9;
+  --muted: #e5e7eb;
+  --muted-foreground: #6b7280;
+  --accent: #e5e7eb;
   --accent-foreground: #0f172a;
-  --destructive: #f3797e;
+  --destructive: #ef4444;
   --destructive-foreground: #ffffff;
-  --border: #e2e8f0;
-  --input: #e2e8f0;
+  --border: #e2e5ea;
+  --input: #e2e5ea;
   --ring: #4b49ac;
   --brand-primary: #4b49ac;
   --brand-secondary: #98bdff;
@@ -52,24 +52,24 @@
 }
 
 .dark {
-  --background: #020617;
+  --background: #0a0f1e;
   --foreground: #e2e8f0;
-  --card: #0f172a;
+  --card: #111827;
   --card-foreground: #e2e8f0;
-  --popover: #0f172a;
+  --popover: #111827;
   --popover-foreground: #e2e8f0;
   --primary: #7da0fa;
   --primary-foreground: #0f172a;
-  --secondary: #1e293b;
+  --secondary: #1a2332;
   --secondary-foreground: #e2e8f0;
-  --muted: #1e293b;
-  --muted-foreground: #94a3b8;
-  --accent: #1e293b;
+  --muted: #1a2332;
+  --muted-foreground: #8b95a8;
+  --accent: #1a2332;
   --accent-foreground: #e2e8f0;
-  --destructive: #f3797e;
+  --destructive: #ef4444;
   --destructive-foreground: #ffffff;
-  --border: #334155;
-  --input: #334155;
+  --border: #2a3444;
+  --input: #2a3444;
   --ring: #7da0fa;
 }
 
@@ -81,65 +81,127 @@ body {
 .glass-card {
   background: var(--card);
   border: 1px solid var(--border);
-  box-shadow: 0 1px 2px rgb(15 23 42 / 0.03);
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.04);
 }
 
 .dark .glass-card {
   background: var(--card);
   border-color: var(--border);
-  box-shadow: 0 1px 2px rgb(2 6 23 / 0.15);
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.2);
 }
 
-.dark .glass-card .text-slate-500,
-.dark .glass-card .text-slate-600 {
-  color: rgb(148 163 184);
+.dark .glass-card :is(p, span, label, td, dt, dd, li, small) {
+  color: rgb(226 232 240);
 }
 
-.dark .glass-card .text-slate-400 {
-  color: rgb(148 163 184);
+.dark .glass-card :is(h1, h2, h3, h4, strong, th) {
+  color: rgb(248 250 252);
 }
 
-.dark .glass-card .text-slate-700 {
+.dark .glass-card :is(.text-slate-400, .text-slate-500, .text-slate-600) {
+  color: rgb(139 149 168);
+}
+
+.dark .glass-card :is(.text-slate-700) {
   color: rgb(203 213 225);
 }
 
-.dark .glass-card .text-slate-800,
-.dark .glass-card .text-slate-900 {
+.dark .glass-card :is(.text-slate-800, .text-slate-900) {
   color: rgb(248 250 252);
-}
-
-.dark .glass-card h1,
-.dark .glass-card h2,
-.dark .glass-card h3,
-.dark .glass-card h4,
-.dark .glass-card strong,
-.dark .glass-card th {
-  color: rgb(248 250 252);
-}
-
-.dark .glass-card p,
-.dark .glass-card td,
-.dark .glass-card dt,
-.dark .glass-card dd,
-.dark .glass-card li {
-  color: rgb(226 232 240);
-  opacity: 1;
-}
-
-.dark .glass-card span,
-.dark .glass-card label,
-.dark .glass-card small {
-  color: rgb(226 232 240);
-  opacity: 1;
 }
 
 .dark .glass-card input,
 .dark .glass-card select {
-  background: rgb(15 23 42 / 0.8);
-  border-color: rgb(51 65 85 / 0.8);
+  background: rgb(17 24 39 / 0.8);
+  border-color: rgb(42 52 68 / 0.8);
   color: rgb(241 245 249);
 }
 
 .dark .glass-card input::placeholder {
-  color: rgb(100 116 139);
+  color: rgb(107 114 128);
 }
+
+@keyframes pulse-ring {
+  0% { transform: scale(0.8); opacity: 0.6; }
+  100% { transform: scale(2); opacity: 0; }
+}
+
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(16px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.recharts-cartesian-grid-horizontal line,
+.recharts-cartesian-grid-vertical line {
+  stroke-opacity: 0.15;
+}
+
+.dark .recharts-cartesian-grid-horizontal line,
+.dark .recharts-cartesian-grid-vertical line {
+  stroke-opacity: 0.1;
+}
+
+.recharts-tooltip-wrapper {
+  outline: none;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.5s ease-out forwards;
+  opacity: 0;
+}
+
+.animate-slide-in-left {
+  animation: slideInLeft 0.4s ease-out forwards;
+  opacity: 0;
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+.animate-shimmer {
+  animation: shimmer 2s infinite;
+}
+
+@keyframes countUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-count-up {
+  animation: countUp 0.6s ease-out forwards;
+}
+

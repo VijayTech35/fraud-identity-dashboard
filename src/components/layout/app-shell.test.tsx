@@ -11,8 +11,7 @@ test("renders dashboard navigation", () => {
     </AppShell>,
   );
 
-  const navLinks = screen.getAllByText("Dashboard");
-  expect(navLinks.length).toBeGreaterThanOrEqual(1);
   const verLinks = screen.getAllByText("Verification");
   expect(verLinks.length).toBeGreaterThanOrEqual(1);
+  expect(screen.getByText("Dashboard")).toBeInTheDocument();
 });
